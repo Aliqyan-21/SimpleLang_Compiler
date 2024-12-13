@@ -32,6 +32,24 @@ public:
   AST_AssignmentNode(const std::string varname, const std::string op);
 };
 
+class AST_IfStatementNode : public ASTNode {
+public:
+  ASTNode *condition;
+  ASTNode *statement;
+
+  AST_IfStatementNode(ASTNode *condition, ASTNode *statement);
+};
+
+class ParseCondtionNode : public ASTNode {
+public:
+  std::string lhs;
+  std::string rhs;
+  std::string opSym;
+
+  ParseCondtionNode(const std::string &lhs, const std::string &rhs,
+                    const std::string &opSym);
+};
+
 class Parser {
 private:
   Lexer lexer;
@@ -40,6 +58,8 @@ private:
 
   ASTNode *variableDeclarationParser();
   ASTNode *variableAssignmentParser();
+  ASTNode *ifStatementParser();
+  ASTNode *parseCondition();
 
 public:
   Parser(Lexer lexer);

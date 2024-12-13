@@ -1,26 +1,7 @@
 #include "../parser.h"
-#include <unordered_map>
-
-std::unordered_map<tokenType, std::string> m{
-    {TOKEN_INT, "TOKEN_INT"},
-    {TOKEN_IDENTIFIER, "TOKEN_IDENTIFIER"},
-    {TOKEN_NUMBER, "TOKEN_NUMBER"},
-    {TOKEN_ASSIGN, "TOKEN_ASSIGN"},
-    {TOKEN_PLUS, "TOKEN_PLUS"},
-    {TOKEN_MINUS, "TOKEN_MINUS"},
-    {TOKEN_IF, "TOKEN_IF"},
-    {TOKEN_EQUAL, "TOKEN_EQUAL"},
-    {TOKEN_LBRACE, "TOKEN_LBRACE"},
-    {TOKEN_RBRACE, "TOKEN_RBRACE"},
-    {TOKEN_LPAREN, "TOKEN_LPAREN"},
-    {TOKEN_RPAREN, "TOKEN_RPAREN"},
-    {TOKEN_SEMICOLON, "TOKEN_SEMICOLON"},
-    {TOKEN_UNKNOWN, "TOKEN_UNKNOWN"},
-    {TOKEN_EOF, "TOKEN_EOF"},
-};
 
 int main(void) {
-  std::string code = "int a; int b; a = b + a;";
+  std::string code = "int a; a = 5; if(a == 5) {a = a+1;}";
   Lexer lex(code);
 
   Parser parser(lex);
@@ -31,14 +12,24 @@ int main(void) {
   auto n = dynamic_cast<AST_DeclarationNode *>(ast->nodes[0]);
   std::cout << n->varname << std::endl;
 
-  n = dynamic_cast<AST_DeclarationNode *>(ast->nodes[1]);
-  std::cout << n->varname << std::endl;
-
-  auto x = dynamic_cast<AST_AssignmentNode *>(ast->nodes[2]);
+  auto x = dynamic_cast<AST_AssignmentNode *>(ast->nodes[1]);
   std::cout << x->varname << " = ";
   std::cout << x->op1 << " ";
   std::cout << x->opSym << " ";
   std::cout << x->op2 << " ";
+  std::cout << std::endl;
+
+  auto y = dynamic_cast<AST_IfStatementNode *>(ast->nodes[2]);
+  auto a = dynamic_cast<ParseCondtionNode *>(y->condition);
+  std::cout << a->lhs << " ";
+  std::cout << a->opSym << " ";
+  std::cout << a->rhs << " ";
+
+  auto b = dynamic_cast<AST_AssignmentNode *>(y->statement);
+  std::cout << b->varname << " = ";
+  std::cout << b->op1 << " ";
+  std::cout << b->opSym << " ";
+  std::cout << b->op2 << " ";
   std::cout << std::endl;
 
   // for (auto &node : ast->nodes) {

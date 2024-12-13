@@ -20,12 +20,31 @@ std::unordered_map<tokenType, std::string> m{
 };
 
 int main(void) {
-  std::string code = "int a; int b; int c; a = 10; b = 20; c = a + b; if (c == "
-                     "30) { c = c + 1; }";
+  std::string code = "int a; int b; a = b + a;";
   Lexer lex(code);
 
   Parser parser(lex);
   ASTNode *ast = parser.parse();
+
+  std::cout << ast->nodes.size() << std::endl;
+
+  auto n = dynamic_cast<AST_DeclarationNode *>(ast->nodes[0]);
+  std::cout << n->varname << std::endl;
+
+  n = dynamic_cast<AST_DeclarationNode *>(ast->nodes[1]);
+  std::cout << n->varname << std::endl;
+
+  auto x = dynamic_cast<AST_AssignmentNode *>(ast->nodes[2]);
+  std::cout << x->varname << " = ";
+  std::cout << x->op1 << " ";
+  std::cout << x->opSym << " ";
+  std::cout << x->op2 << " ";
+  std::cout << std::endl;
+
+  // for (auto &node : ast->nodes) {
+  //   auto n = dynamic_cast<AST_DeclarationNode *>(node);
+  //   std::cout << n->varname << std::endl;
+  // }
 
   return 0;
 }

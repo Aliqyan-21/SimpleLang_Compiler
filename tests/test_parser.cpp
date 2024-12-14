@@ -7,8 +7,6 @@ int main(void) {
   Parser parser(lex);
   ASTNode *ast = parser.parse();
 
-  std::cout << ast->nodes.size() << std::endl;
-
   auto n = dynamic_cast<AST_DeclarationNode *>(ast->nodes[0]);
   std::cout << n->varname << std::endl;
 

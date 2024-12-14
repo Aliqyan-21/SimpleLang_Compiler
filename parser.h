@@ -56,6 +56,9 @@ private:
   std::vector<Token> tokens;
   size_t currToken;
 
+  // helper functions
+  bool isToken(tokenType token);
+
   ASTNode *variableDeclarationParser();
   ASTNode *variableAssignmentParser();
   ASTNode *ifStatementParser();

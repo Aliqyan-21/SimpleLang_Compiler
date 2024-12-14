@@ -28,6 +28,11 @@ ParseCondtionNode::ParseCondtionNode(const std::string &lhs,
 
 // ********** Parser class **********
 
+// --- helper functions ---
+inline bool Parser::isToken(tokenType token) {
+  return tokens[currToken].name == token;
+}
+
 // constructor
 Parser::Parser(Lexer lexer) : lexer(lexer), currToken(0) {
   tokens = lexer.tokenize();
@@ -64,36 +69,34 @@ ASTNode *Parser::parse() {
 // todo: implement compiler like error handling instead of interpreter - later
 ASTNode *Parser::variableDeclarationParser() {
   currToken++;
-  if (tokens[currToken].name == tokenType::TOKEN_IDENTIFIER) {
-    std::string varname = tokens[currToken].value;
-    currToken++;
-    if (tokens[currToken].name == tokenType::TOKEN_SEMICOLON) {
-      currToken++;
-      return new AST_DeclarationNode(varname);
-    } else {
-      std::cerr << "Syntax error at token " << tokens[currToken].value
-                << " -> missing semicolon." << std::endl;
-      exit(1);
-    }
-  } else {
+  if (!isToken(tokenType::TOKEN_IDENTIFIER)) {
     std::cerr << "Syntax error at token " << tokens[currToken].value
               << " -> missing identifier." << std::endl;
     exit(1);
   }
+  std::string varname = tokens[currToken].value;
+  currToken++;
+
+  if (!isToken(tokenType::TOKEN_SEMICOLON)) {
+    std::cerr << "Syntax error at token " << tokens[currToken].value
+              << " -> missing semicolon." << std::endl;
+    exit(1);
+  }
+  currToken++;
+  return new AST_DeclarationNode(varname);
 }
 
 ASTNode *Parser::variableAssignmentParser() {
   std::string varname = tokens[currToken].value;
 
   currToken++;
-  if (tokens[currToken].name != tokenType::TOKEN_ASSIGN) {
+  if (!isToken(tokenType::TOKEN_ASSIGN)) {
     std::cerr << "not a valid token: missing '='" << std::endl;
     exit(1);
   }
   currToken++;
 
-  if (tokens[currToken].name != tokenType::TOKEN_IDENTIFIER &&
-      tokens[currToken].name != tokenType::TOKEN_NUMBER) {
+  if (!isToken(TOKEN_IDENTIFIER) && !isToken(TOKEN_NUMBER)) {
     std::cerr << "syntax error: expected variable name or a literal after '='"
               << std::endl;
     exit(1);
@@ -101,15 +104,13 @@ ASTNode *Parser::variableAssignmentParser() {
   std::string op1 = tokens[currToken].value;
   currToken++;
 
-  if (tokens[currToken].name == tokenType::TOKEN_SEMICOLON) {
+  if (isToken(TOKEN_SEMICOLON)) {
     currToken++;
     return new AST_AssignmentNode(varname, op1);
-  } else if (tokens[currToken].name == tokenType::TOKEN_PLUS ||
-             tokens[currToken].name == tokenType::TOKEN_MINUS) {
+  } else if (isToken(TOKEN_PLUS) || isToken(TOKEN_MINUS)) {
     std::string opSym = tokens[currToken].value;
     currToken++;
-    if (tokens[currToken].name != tokenType::TOKEN_IDENTIFIER &&
-        tokens[currToken].name != tokenType::TOKEN_NUMBER) {
+    if (!isToken(TOKEN_IDENTIFIER) && !isToken(TOKEN_NUMBER)) {
       std::cerr
           << "Syntax Error: expected variable name or literal after operator"
           << std::endl;
@@ -118,7 +119,7 @@ ASTNode *Parser::variableAssignmentParser() {
     std::string op2 = tokens[currToken].value;
     currToken++;
 
-    if (tokens[currToken].name != tokenType::TOKEN_SEMICOLON) {
+    if (!isToken(TOKEN_SEMICOLON)) {
       std::cerr << "Syntax Error: expected ';' after variable name"
                 << std::endl;
       exit(1);
@@ -135,8 +136,7 @@ ASTNode *Parser::variableAssignmentParser() {
 }
 
 ASTNode *Parser::parseCondition() {
-  if (tokens[currToken].name != tokenType::TOKEN_IDENTIFIER &&
-      tokens[currToken].name != tokenType::TOKEN_NUMBER) {
+  if (!isToken(TOKEN_IDENTIFIER) && !isToken(TOKEN_NUMBER)) {
     std::cerr << "Sytax error : expected idetifier or number after "
               << tokens[currToken].value << std::endl;
     exit(1);
@@ -145,7 +145,7 @@ ASTNode *Parser::parseCondition() {
   std::string lhs = tokens[currToken].value;
   currToken++;
 
-  if (tokens[currToken].name != tokenType::TOKEN_EQUAL) {
+  if (!isToken(TOKEN_EQUAL)) {
     std::cerr << "Sytax error : expected '==' after " << tokens[currToken].value
               << std::endl;
     exit(1);
@@ -154,8 +154,7 @@ ASTNode *Parser::parseCondition() {
   std::string opSym = tokens[currToken].value;
   currToken++;
 
-  if (tokens[currToken].name != tokenType::TOKEN_IDENTIFIER &&
-      tokens[currToken].name != tokenType::TOKEN_NUMBER) {
+  if (!isToken(TOKEN_IDENTIFIER) && !isToken(TOKEN_NUMBER)) {
     std::cerr << "Sytax error : expected idetifier or number after "
               << tokens[currToken].value << std::endl;
     exit(1);
@@ -169,7 +168,7 @@ ASTNode *Parser::parseCondition() {
 
 ASTNode *Parser::ifStatementParser() {
   currToken++;
-  if (tokens[currToken].name != tokenType::TOKEN_LBRACE) {
+  if (!isToken(TOKEN_LBRACE)) {
     std::cerr << "Missing '(' after token " << tokens[currToken].value
               << std::endl;
     exit(1);
@@ -178,14 +177,14 @@ ASTNode *Parser::ifStatementParser() {
 
   ASTNode *condition = parseCondition();
 
-  if (tokens[currToken].name != tokenType::TOKEN_RBRACE) {
+  if (!isToken(TOKEN_RBRACE)) {
     std::cerr << "Missing ')' after token " << tokens[currToken].value
               << std::endl;
     exit(1);
   }
   currToken++;
 
-  if (tokens[currToken].name != tokenType::TOKEN_LPAREN) {
+  if (!isToken(TOKEN_LPAREN)) {
     std::cerr << "Missing '{' after token " << tokens[currToken].value
               << std::endl;
     exit(1);
@@ -194,7 +193,7 @@ ASTNode *Parser::ifStatementParser() {
 
   ASTNode *statement = variableAssignmentParser();
 
-  if (tokens[currToken].name != tokenType::TOKEN_RPAREN) {
+  if (!isToken(TOKEN_RPAREN)) {
     std::cerr << "Missing '}' after token " << tokens[currToken].value
               << std::endl;
     exit(1);

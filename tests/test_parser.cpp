@@ -12,22 +12,24 @@ int main(void) {
 
   auto x = dynamic_cast<AST_AssignmentNode *>(ast->nodes[1]);
   std::cout << x->varname << " = ";
-  std::cout << x->op1 << " ";
-  std::cout << x->opSym << " ";
-  std::cout << x->op2 << " ";
+  auto expr1 = dynamic_cast<AST_BinaryOpNode *>(x->expression);
+  std::cout << expr1->op1 << " ";
+  std::cout << expr1->opSym << " ";
+  std::cout << expr1->op2 << " ";
   std::cout << std::endl;
 
   auto y = dynamic_cast<AST_IfStatementNode *>(ast->nodes[2]);
-  auto a = dynamic_cast<ParseCondtionNode *>(y->condition);
+  auto a = dynamic_cast<AST_ConditionNode *>(y->condition);
   std::cout << a->lhs << " ";
   std::cout << a->opSym << " ";
   std::cout << a->rhs << " ";
 
-  auto b = dynamic_cast<AST_AssignmentNode *>(y->statement);
-  std::cout << b->varname << " = ";
-  std::cout << b->op1 << " ";
-  std::cout << b->opSym << " ";
-  std::cout << b->op2 << " ";
+  x = dynamic_cast<AST_AssignmentNode *>(y->statement);
+  std::cout << x->varname << " = ";
+  expr1 = dynamic_cast<AST_BinaryOpNode *>(x->expression);
+  std::cout << expr1->op1 << " ";
+  std::cout << expr1->opSym << " ";
+  std::cout << expr1->op2 << " ";
   std::cout << std::endl;
 
   // for (auto &node : ast->nodes) {
